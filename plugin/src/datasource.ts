@@ -14,18 +14,19 @@ import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   resolution: number;
+  url?: string;
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
 
+    console.log('instance', instanceSettings.url);
+    this.url = instanceSettings.url;
     this.resolution = instanceSettings.jsonData.resolution || 1000.0;
   }
 
   async getHealth() {
     const result = await getBackendSrv().datasourceRequest({
-      method: 'GET',
-      url: 'https://api.rollbar.com/api/1/reports/occurrence_counts',
-      headers: { 'X-Rollbar-Access-Token': '4059debe7a6f4f059986d1c2e729e5e2x' },
+      url: this.url + '/rollbar',
     });
 
     return result;
@@ -62,7 +63,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     // Implement a health check for your data source.
     try {
       const response = await this.getHealth();
-      console.log('Checking health', response.status);
+      console.log('Checking health', response);
 
       if (response.status === 200) {
         return {

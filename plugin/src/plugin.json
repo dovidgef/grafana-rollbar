@@ -32,5 +32,19 @@
   "dependencies": {
     "grafanaDependency": ">=7.0.0",
     "plugins": []
-  }
+  },
+  "routes": [
+    {
+      "path": "rollbar",
+      "url": "https://api.rollbar.com/api/1/reports/occurrence_counts",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "X-Rollbar-Access-Token",
+          "content": "{{ .SecureJsonData.apiKey }}"
+        }
+      ]
+    }
+  ]
+
 }
