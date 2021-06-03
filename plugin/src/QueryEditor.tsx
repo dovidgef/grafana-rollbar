@@ -1,57 +1,37 @@
 import defaults from 'lodash/defaults';
 
-import React, { ChangeEvent, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { LegacyForms } from '@grafana/ui';
-import { QueryEditorProps } from '@grafana/data';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 
-const { FormField } = LegacyForms;
+const { Select } = LegacyForms;
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
-  onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = this.props;
-    onChange({ ...query, queryText: event.target.value });
-  };
-
-  onConstantChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onFrequencyChange = (v: SelectableValue<any>) => {
     const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, constant: parseFloat(event.target.value) });
-    // executes the query
-    onRunQuery();
-  };
-
-  onFrequencyChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, frequency: parseFloat(event.target.value) });
+    onChange({ ...query, frequency: v });
     // executes the query
     onRunQuery();
   };
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
-    const { queryText, constant, frequency } = query;
+    const { frequency } = query;
+    console.log('freq', frequency, this.props.query);
+    const selectOptions = [
+      { label: 'Minute', value: 60 },
+      { label: 'Hour', value: 3600 },
+      { label: 'Day', value: 86400 },
+    ];
 
     return (
       <div className="gf-form">
-        <FormField
-          width={4}
-          value={constant}
-          onChange={this.onConstantChange}
-          label="Constant"
-          type="number"
-          step="0.1"
-        />
-        <FormField
-          labelWidth={8}
-          value={queryText || ''}
-          onChange={this.onQueryTextChange}
-          label="Query Text"
-          tooltip="Not used yet"
-        />
-        <FormField width={4} value={frequency} onChange={this.onFrequencyChange} label="Frequency" type="number" />
+        {/*<FormField width={4} value={frequency} onChange={this.onFrequencyChange} label="Frequency" type="number" />*/}
+        <Select width={6} options={selectOptions} value={frequency} onChange={this.onFrequencyChange} />
       </div>
     );
   }

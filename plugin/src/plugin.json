@@ -36,8 +36,8 @@
   "routes": [
     {
       "path": "rollbar",
-      "url": "https://api.rollbar.com/api/1/reports/occurrence_counts",
-      "method": "GET",
+      "url": "https://api.rollbar.com/api/1/",
+      "method": "*",
       "headers": [
         {
           "name": "X-Rollbar-Access-Token",

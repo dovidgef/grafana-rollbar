@@ -1,14 +1,11 @@
-import { DataQuery, DataSourceJsonData } from '@grafana/data';
+import { DataQuery, DataSourceJsonData, SelectableValue } from '@grafana/data';
 
 export interface MyQuery extends DataQuery {
-  queryText?: string;
-  constant: number;
-  frequency: number;
+  frequency: SelectableValue;
 }
 
 export const defaultQuery: Partial<MyQuery> = {
-  constant: 6.5,
-  frequency: 1.0,
+  frequency: { label: 'Minute', value: 60 },
 };
 
 /**

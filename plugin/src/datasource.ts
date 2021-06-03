@@ -13,7 +13,6 @@ import { getBackendSrv } from '@grafana/runtime';
 import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
-  resolution: number;
   url?: string;
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
@@ -21,15 +20,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     console.log('instance', instanceSettings.url);
     this.url = instanceSettings.url;
-    this.resolution = instanceSettings.jsonData.resolution || 1000.0;
   }
 
   async getHealth() {
-    const result = await getBackendSrv().datasourceRequest({
-      url: this.url + '/rollbar',
+    return await getBackendSrv().datasourceRequest({
+      url: this.url + '/rollbar/reports/occurrence_counts',
     });
-
-    return result;
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -37,6 +33,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const from = range!.from.valueOf();
     const to = range!.to.valueOf();
 
+    console.log('Query options', JSON.stringify(options));
     const data = options.targets.map(target => {
       const query = defaults(target, defaultQuery);
       const frame = new MutableDataFrame({
@@ -49,9 +46,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       // duration of the time range, in milliseconds.
       const duration = to - from;
       // step determines how close in time (ms) the points will be to each other.
-      const step = duration / this.resolution;
+      const step = duration;
       for (let t = 0; t < duration; t += step) {
-        frame.add({ Time: from + t, Value: Math.sin((2 * Math.PI * query.frequency * t) / duration) });
+        frame.add({ Time: from + t, Value: Math.sin((2 * Math.PI * query.frequency.value * t) / duration) });
       }
       return frame;
     });
