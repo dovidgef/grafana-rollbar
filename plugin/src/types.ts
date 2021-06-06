@@ -5,7 +5,7 @@ export interface MyQuery extends DataQuery {
 }
 
 export const defaultQuery: Partial<MyQuery> = {
-  frequency: { label: 'Minute', value: 60 },
+  frequency: { label: 'Day', value: 86400 },
 };
 
 /**
