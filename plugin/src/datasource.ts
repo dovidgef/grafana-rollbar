@@ -18,13 +18,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
 
-    console.log('instance', instanceSettings.url);
+    // console.log('instance', instanceSettings.url);
     this.url = instanceSettings.url;
   }
 
-  async getHealth() {
+  async getOccurrences(bucket_size = 60) {
     return await getBackendSrv().datasourceRequest({
       url: this.url + '/rollbar/reports/occurrence_counts',
+      params: { bucket_size },
     });
   }
 
@@ -34,7 +35,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const to = range!.to.valueOf();
 
     console.log('Query options', JSON.stringify(options));
-    const data = options.targets.map(target => {
+    const data = options.targets.map(async target => {
       const query = defaults(target, defaultQuery);
       const frame = new MutableDataFrame({
         refId: query.refId,
@@ -43,23 +44,30 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           { name: 'Value', type: FieldType.number },
         ],
       });
-      // duration of the time range, in milliseconds.
-      const duration = to - from;
-      // step determines how close in time (ms) the points will be to each other.
-      const step = duration;
-      for (let t = 0; t < duration; t += step) {
-        frame.add({ Time: from + t, Value: Math.sin((2 * Math.PI * query.frequency.value * t) / duration) });
+      const res = await this.getOccurrences(query.frequency.value);
+      const points = res.data.result.map((p: number[]) => {
+        // Convert to millisecond timestamp
+        return [p[0] * 1000, p[1]];
+      });
+      const matchingDatapoints = points.filter((p: number[]) => {
+        const t = p[0];
+        // console.log(`from: ${from}, to: ${to}, point t: ${t}, point array: ${p}`);
+        return t >= from && t <= to;
+      });
+      // console.log('matching:', matchingDatapoints);
+      for (const point of matchingDatapoints) {
+        frame.add({ Time: point[0], Value: point[1] });
       }
       return frame;
     });
 
-    return { data };
+    return Promise.all(data).then(data => ({ data }));
   }
 
   async testDatasource() {
     // Implement a health check for your data source.
     try {
-      const response = await this.getHealth();
+      const response = await this.getOccurrences();
       console.log('Checking health', response);
 
       if (response.status === 200) {

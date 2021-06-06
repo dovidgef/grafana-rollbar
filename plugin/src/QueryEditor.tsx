@@ -13,6 +13,7 @@ type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 export class QueryEditor extends PureComponent<Props> {
   onFrequencyChange = (v: SelectableValue<any>) => {
     const { onChange, query, onRunQuery } = this.props;
+    console.log('onFrequencyChange:', query);
     onChange({ ...query, frequency: v });
     // executes the query
     onRunQuery();
@@ -21,7 +22,6 @@ export class QueryEditor extends PureComponent<Props> {
   render() {
     const query = defaults(this.props.query, defaultQuery);
     const { frequency } = query;
-    console.log('freq', frequency, this.props.query);
     const selectOptions = [
       { label: 'Minute', value: 60 },
       { label: 'Hour', value: 3600 },
@@ -30,7 +30,6 @@ export class QueryEditor extends PureComponent<Props> {
 
     return (
       <div className="gf-form">
-        {/*<FormField width={4} value={frequency} onChange={this.onFrequencyChange} label="Frequency" type="number" />*/}
         <Select width={6} options={selectOptions} value={frequency} onChange={this.onFrequencyChange} />
       </div>
     );
