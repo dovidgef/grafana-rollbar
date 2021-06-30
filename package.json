@@ -1,6 +1,6 @@
 {
   "name": "dovidgef-grafana-rollbar",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Rollbar Datasource",
   "scripts": {
     "build": "grafana-toolkit plugin:build",

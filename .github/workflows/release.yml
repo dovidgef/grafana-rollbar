@@ -76,7 +76,7 @@ jobs:
           args: buildAll
 
       - name: Sign plugin
-        run: yarn sign --signatureType=community
+        run: yarn sign --rootUrls https://test.grafana.net #--signatureType=community
         env:
           GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }} # Requires a Grafana API key from Grafana.com.
 
