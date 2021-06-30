@@ -34,7 +34,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const from = range!.from.valueOf();
     const to = range!.to.valueOf();
 
-    console.log('Query options', JSON.stringify(options));
     const data = options.targets.map(async target => {
       const query = defaults(target, defaultQuery);
       const frame = new MutableDataFrame({
